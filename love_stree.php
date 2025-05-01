@@ -14,7 +14,15 @@ $conn = new mysqli($host, $user, $password, $db, $port);
 if ($conn->connect_error) {
     die("Kết nối thất bại: " . $conn->connect_error);
 }
+// Lấy giá trị PH của user hiện tại
+$result = $conn->query("SELECT PH FROM outfits WHERE user_id = $current_user_id");
 
+if ($result) {
+    $row = $result->fetch_assoc();
+    $current_ph = $row['PH'];
+} else {
+    $current_ph = 0;
+}
 
 // Lấy toàn bộ user và outfit tương ứng
 $sql = "
@@ -33,6 +41,8 @@ SELECT
     outfits.status_effect1,
     outfits.status_effect2,
     outfits.status_effect3,
+    outfits.PH,
+
     outfits.x, 
     outfits.y, 
     users.status
@@ -50,7 +60,21 @@ $result = $conn->query($sql);
 <head>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
+<style>
+        .ph-bar-container {
+            width: 100%;
+            height: 5px;
+            background-color: #ccc;
+            border-radius: 5px;
+            margin-bottom:5%;
+        }
+        .ph-bar {
+            height: 100%;
+            width: 0;
+            border-radius: 5px;
+            background: linear-gradient(to right, rgb(0, 255, 0), rgb(255, 0, 0));
+        }
+    </style>
   <style>
     
            * {
@@ -141,7 +165,11 @@ while ($row = $result->fetch_assoc()) {
 
     if ($row['id'] == $current_user_id) {
         // Nếu là current user thì chỉ có effect-icon
-        $usernameDisplay = '<div class="username" style="z-index:10;margin: 0 auto; text-align:center;color: gold; font-weight: bold; position: relative; font-family: arial; font-size: 12px;">
+        $usernameDisplay = '
+               <div class="ph-bar-container">
+            <div id="ph-bar" class="ph-bar"></div>
+        </div>
+        <div class="username" style="z-index:10;margin: 0 auto; text-align:center;color: gold; font-weight: bold; position: relative; font-family: arial; font-size: 12px;">
                                 <i class="fa-solid fa-arrow-up"></i> ' . htmlspecialchars($row['username']) . '
                                 <div class="icon-container" style="display: none;">
                                     <img src="image/icon/effect_icon.png" style="left:-10%;" class="circle-icon effect-icon" data-effect="' . htmlspecialchars($row['effect']) . '">
@@ -177,6 +205,47 @@ while ($row = $result->fetch_assoc()) {
     echo '</div>';
 }
 ?>
+
+<script>
+        const PH_MAX = 10000;
+        let userPH = <?php echo $current_ph; ?>;
+        const userId = <?php echo $current_user_id; ?>;
+        
+        // Cập nhật thanh PH ngay từ đầu
+        const phBar = document.getElementById('ph-bar');
+        updatePHBar(userPH);
+
+        // Hàm cập nhật thanh PH
+        function updatePHBar(ph) {
+            let percent = (ph / PH_MAX) * 100;
+            phBar.style.width = percent + "%";
+
+            // Cập nhật màu sắc thanh PH từ xanh sang đỏ
+            const green = Math.floor((ph / PH_MAX) * 255);
+            const red = 255 - green;
+            phBar.style.background = `linear-gradient(to right, rgb(${green}, 255, 0), rgb(255, ${255 - green}, ${255 - green}))`;
+        }
+
+        // Hàm nạp PH mỗi giây
+        function incrementPH() {
+            if (userPH < PH_MAX) {
+                userPH += 100; // Tăng PH mỗi giây 100
+
+                // Gửi Ajax để cập nhật PH vào database
+                fetch('update_ph.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: `user_id=${userId}&ph=${userPH}`
+                });
+
+                // Cập nhật lại thanh PH
+                updatePHBar(userPH);
+            }
+        }
+
+        // Chạy hàm incrementPH mỗi giây
+        setInterval(incrementPH, 1000);
+    </script>
 <!-- Thêm phần JS vào cuối trang -->
 <script>
     

@@ -1,6 +1,6 @@
 <?php
 session_start();
-$current_user_id = $_SESSION['user_id']; // Lấy ID từ session khi người dùng đăng nhập
+$current_user_id = $_SESSION['user_id']; // Lấy ID người dùng từ session khi đăng nhập
 
 // Kết nối CSDL
 $host = 'localhost';
@@ -15,8 +15,25 @@ if ($conn->connect_error) {
     die("Kết nối thất bại: " . $conn->connect_error);
 }
 
+// Kiểm tra PH của user hiện tại
+$result = $conn->query("SELECT PH FROM outfits WHERE user_id = $current_user_id");
 
-// Lấy toàn bộ user và outfit tương ứng
+if ($result) {
+    $row = $result->fetch_assoc();
+    
+    // Nếu PH của người dùng = 0 thì chuyển hướng về logout.php và xóa session
+    if ($row['PH'] <= 0) {
+        // Hủy session
+        session_unset(); // Xóa tất cả các biến session
+        session_destroy(); // Hủy session
+
+        // Chuyển hướng đến trang đăng xuất
+        header("Location: logout.php");
+        exit();
+    }
+}
+
+// Lấy thông tin người dùng và outfit tương ứng
 $sql = "
 SELECT 
     users.id, 
@@ -33,6 +50,7 @@ SELECT
     outfits.status_effect1,
     outfits.status_effect2,
     outfits.status_effect3,
+    outfits.PH,
     outfits.x, 
     outfits.y, 
     users.status
@@ -41,9 +59,9 @@ INNER JOIN outfits ON users.id = outfits.user_id
 WHERE users.status = 1
 ";
 
-
 $result = $conn->query($sql);
 ?>
+
 
 <!DOCTYPE html>
 <html>
@@ -69,6 +87,7 @@ while ($row = $result->fetch_assoc()) {
                             </div>';
     } else {
         // Nếu là người khác thì chỉ có namdam.webp
+        
         $usernameDisplay = '<div class="username" style="z-index:10;text-align:center;color: white; position: relative;font-family: arial; font-size: 12px">
                                 ' . htmlspecialchars($row['username']) . '
                                 <div class="icon-container" style="display: none;">
@@ -87,6 +106,11 @@ while ($row = $result->fetch_assoc()) {
         echo '<img src="' . $row['image2'] . '" class="image2" style="display:none;">';
         echo '<img src="' . $row['image3'] . '" class="image3" style="display:block;">';
         echo '<img src="' . $row['image4'] . '" class="image4" style="display:none;">';
+        if ($row['id'] != $current_user_id) {
+            echo '<div class="ph-bar-container" data-user-id="' . $row['id'] . '">
+                      <div class="ph-bar" style="width: 100%;"></div>
+                  </div>';
+        }
         $displayEffect = ($row['status_effect'] == 1) ? 'block' : 'none';
         $displayEffect1 = ($row['status_effect1'] == 1) ? 'block' : 'none';
         $displayEffect2 = ($row['status_effect2'] == 1) ? 'block' : 'none';
@@ -100,6 +124,105 @@ while ($row = $result->fetch_assoc()) {
     echo '</div>';
 }
 ?>
+
+<style>
+    .ph-bar-container {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 6px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid #333;
+    border-radius: 5px;
+    overflow: hidden;
+    z-index: 999;
+    display: none;
+}
+
+.ph-bar {
+    height: 100%;
+    background: linear-gradient(to right, limegreen, red);
+    transition: width 0.5s ease, opacity 0.5s ease;
+}
+
+</style>
+<script>
+const PH_MAX = 10000;
+const DAMAGE = {
+    kiem: 500,
+    namdam: 500,
+    set: 2000
+};
+
+let userPH = {
+<?php
+    mysqli_data_seek($result, 0);
+    while ($row = $result->fetch_assoc()) {
+        if ($row['id'] != $current_user_id) {
+            echo '"' . $row['id'] . '": ' . $row['PH'] . ",\n";
+        }
+    }
+?>
+};
+
+// Gắn sự kiện click cho icon
+document.querySelectorAll('.image-container').forEach(container => {
+    const userId = container.getAttribute('data-user-id');
+
+    if (userId !== "<?php echo $current_user_id; ?>") {
+        const barContainer = container.querySelector('.ph-bar-container');
+        const bar = barContainer.querySelector('.ph-bar');
+        barContainer.style.display = 'block';
+
+        // ✅ Cập nhật thanh máu ban đầu
+        updatePHBar(userId, bar);
+
+        ['kiem-icon', 'namdam-icon', 'set-icon'].forEach(className => {
+            const icon = container.querySelector(`.${className}`);
+            if (icon) {
+                icon.addEventListener('click', () => {
+                    let damage = DAMAGE[className.split('-')[0]];
+                    userPH[userId] = Math.max(0, userPH[userId] - damage);
+                    updatePHBar(userId, bar);
+
+                    // Gửi Ajax cập nhật vào database
+                    fetch('update_ph.php', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                        body: `user_id=${userId}&ph=${userPH[userId]}`
+                    });
+
+                    if (userPH[userId] <= 0) {
+                        if (confirm("User này đã hết PH! Chuyển về logout.php?")) {
+                            window.location.href = "alfea.php";
+                        }
+                    }
+                });
+            }
+        });
+    }
+});
+
+function updatePHBar(userId, bar) {
+    let ph = userPH[userId];
+    let percent = ph / PH_MAX * 100;
+    bar.style.width = percent + "%";
+
+    if (ph <= 0) {
+        bar.style.opacity = 0;
+    } else {
+        bar.style.opacity = 1;
+    }
+
+    // Cập nhật màu từ xanh lá sang đỏ
+    const green = Math.floor((ph / PH_MAX) * 255);
+    const red = 255 - green;
+    bar.style.background = `linear-gradient(to right, rgb(${green},255,0), rgb(255,${255 - green},${255 - green}))`;
+}
+</script>
+
 
 <!-- Thêm phần JS vào cuối trang -->
 <script>

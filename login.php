@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $updateStatus->close();
 
             // Chuyển hướng về index
-            header("Location: index.php");
+            header("Location: home.php");
             exit();
         } else {
             $message = "⚠️ Mật khẩu không đúng!";
