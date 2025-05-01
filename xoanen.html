@@ -1,0 +1,91 @@
+<script src="https://unpkg.com/gifuct-js/dist/gifuct.min.js"></script>
+<script src="https://unpkg.com/gif.js.optimized/dist/gif.worker.js"></script>
+<script src="https://unpkg.com/gif.js.optimized/dist/gif.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Xóa nền đen GIF động</title>
+</head>
+<body>
+    <input type="file" id="upload" accept="image/gif" />
+    <br><br>
+    <canvas id="canvas" style="display:none;"></canvas>
+    <br>
+    <img id="result" />
+    <button id="download" style="display:none;">Tải GIF mới</button>
+
+    <script src="https://unpkg.com/gifuct-js/dist/gifuct.min.js"></script>
+    <script src="https://unpkg.com/gif.js.optimized/dist/gif.js"></script>
+    <script src="https://unpkg.com/gif.js.optimized/dist/gif.worker.js"></script>
+
+    <script>
+    document.getElementById('upload').addEventListener('change', async function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const arrayBuffer = await file.arrayBuffer();
+        const gif = window.gifuct.decodeGif(arrayBuffer);
+
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = gif.lsd.width;
+        canvas.height = gif.lsd.height;
+
+        const gifEncoder = new GIF({
+            workers: 2,
+            quality: 10,
+            workerScript: 'https://unpkg.com/gif.js.optimized/dist/gif.worker.js'
+        });
+
+        let previousFrame = ctx.createImageData(canvas.width, canvas.height);
+
+        for (const frame of gif.frames) {
+            if (!frame.image) continue; // chỉ xử lý frame có hình ảnh
+
+            const imgData = ctx.createImageData(frame.dims.width, frame.dims.height);
+            imgData.data.set(frame.patch);
+
+            ctx.putImageData(previousFrame, 0, 0); // vẽ frame trước lên
+            ctx.putImageData(imgData, frame.dims.left, frame.dims.top); // vẽ frame hiện tại
+
+            let fullFrame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+            // Xóa nền đen
+            for (let i = 0; i < fullFrame.data.length; i += 4) {
+                const r = fullFrame.data[i];
+                const g = fullFrame.data[i + 1];
+                const b = fullFrame.data[i + 2];
+                if (r < 30 && g < 30 && b < 30) {
+                    fullFrame.data[i + 3] = 0; // cho pixel này trong suốt
+                }
+            }
+
+            ctx.putImageData(fullFrame, 0, 0);
+
+            gifEncoder.addFrame(ctx, {
+                copy: true,
+                delay: frame.delay || 5
+            });
+
+            previousFrame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        }
+
+        gifEncoder.on('finished', function (blob) {
+            const url = URL.createObjectURL(blob);
+            document.getElementById('result').src = url;
+            document.getElementById('download').style.display = 'inline-block';
+            document.getElementById('download').onclick = function () {
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'output.gif';
+                a.click();
+            };
+        });
+
+        gifEncoder.render();
+    });
+    </script>
+</body>
+</html>
