@@ -52,6 +52,7 @@ $result = $conn->query($sql);
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <style>
+    
            * {
       box-sizing: border-box;
     }
@@ -127,7 +128,7 @@ $result = $conn->query($sql);
 </head>
 <body>
 <video autoplay muted loop id="background-video">
-    <source src="nenlovestree.mp4" type="video/mp4">
+    <source src="image/nen/nenlovestree.mp4" type="video/mp4">
     Your browser does not support HTML5 video.
   </video>
 
@@ -143,7 +144,7 @@ while ($row = $result->fetch_assoc()) {
         $usernameDisplay = '<div class="username" style="z-index:10;margin: 0 auto; text-align:center;color: gold; font-weight: bold; position: relative; font-family: arial; font-size: 12px;">
                                 <i class="fa-solid fa-arrow-up"></i> ' . htmlspecialchars($row['username']) . '
                                 <div class="icon-container" style="display: none;">
-                                    <img src="effect_icon.png" class="circle-icon effect-icon" data-effect="' . htmlspecialchars($row['effect']) . '">
+                                    <img src="image/icon/effect_icon.png" style="left:-10%;" class="circle-icon effect-icon" data-effect="' . htmlspecialchars($row['effect']) . '">
                                 </div>
                             </div>';
     } else {
@@ -151,9 +152,6 @@ while ($row = $result->fetch_assoc()) {
         $usernameDisplay = '<div class="username" style="z-index:10;text-align:center;color: white; position: relative;font-family: arial; font-size: 12px">
                                 ' . htmlspecialchars($row['username']) . '
                                 <div class="icon-container" style="display: none;">
-                                    <img src="namdam.webp" class="circle-icon namdam-icon">
-                                    <img src="set.png" class="circle-icon set-icon" style="left: -10%;">
-                                    <img src="sword.webp" class="circle-icon kiem-icon" style="left: -65%;">
                                 </div>
                             </div>';
     }
@@ -179,6 +177,219 @@ while ($row = $result->fetch_assoc()) {
     echo '</div>';
 }
 ?>
+<!-- Thêm phần JS vào cuối trang -->
+<script>
+    
+    const currentUserId = "<?php echo $current_user_id; ?>"; // Lấy user_id từ session
+const socket = new WebSocket('ws://localhost:8888');
+
+socket.onopen = () => {
+    console.log('WebSocket connected');
+    // Gửi thông tin người dùng sau khi kết nối
+    socket.send(JSON.stringify({
+    type: 'attack',
+    userId,        // người bị tấn công
+    skillType,
+    senderId: currentUserId
+}));
+
+};
+
+
+socket.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+
+    if (data.type === 'effect') {
+    updateEffect(data.userId, data.effectIndex, data.status);
+}
+ else if (data.type === 'attack' && data.senderId !== currentUserId) {
+    launchSkillEffect(data);
+}
+ else if (data.type === 'user_connected') {
+        // Hiển thị thông báo người dùng mới kết nối
+        alert(data.message); // Hoặc cập nhật giao diện theo cách của bạn
+    }
+};
+
+
+
+socket.onclose = () => {
+    console.log('WebSocket disconnected');
+};
+
+
+function updateEffect(userId, effectIndex, status) {
+    const container = document.querySelector(`.image-container[data-user-id="${userId}"]`);
+    if (!container) return;
+
+    const effectClasses = ['.effect-image', '.effect-image1', '.effect-image2', '.effect-image3'];
+    const effect = container.querySelector(effectClasses[effectIndex]);
+
+    if (effect) {
+        effect.style.display = status ? 'block' : 'none';
+        effect.classList.toggle('show-effect', status);
+    }
+}
+
+function launchSkillEffect(data) {
+    const currentUser = document.querySelector('.image-container.current-user');
+    const targetUser = document.querySelector(`.image-container[data-user-id="${data.userId}"]`);
+    if (!currentUser || !targetUser) return;
+
+    const startRect = currentUser.getBoundingClientRect();
+    const endRect = targetUser.getBoundingClientRect();
+
+    const startX = startRect.left + startRect.width / 2;
+    const startY = startRect.top + startRect.height / 2;
+    const endX = endRect.left + endRect.width / 2;
+    const endY = endRect.top + endRect.height / 2;
+
+    const dx = endX - startX;
+    const dy = endY - startY;
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    const distance = Math.hypot(dx, dy);
+    const direction = targetUser.offsetLeft < currentUser.offsetLeft ? 'left' : 'right';
+
+    const skill = document.createElement('img');
+    skill.style.position = 'fixed';
+    skill.style.zIndex = '10000';
+    skill.style.pointerEvents = 'none';
+    skill.style.transition = 'transform 1.2s linear';
+    skill.style.transformOrigin = 'left center';
+
+    if (data.skillType === 'set') {
+    skill.src = 'image/skill/skill4_right.gif';
+    skill.style.left = `${startX}px`;
+    skill.style.top = `${startY}px`;
+    skill.style.width = `${distance}px`;
+    skill.style.height = '40px';
+    skill.style.transform = `rotate(${angle}deg)`;
+} else {
+    // Chọn ảnh theo hướng
+    if (data.skillType === 'kiem') {
+        skill.src = direction === 'left' ? 'image/skill/skill8_right.gif' : 'image/skill/skill8_right.gif';
+    } else if (data.skillType === 'namdam') {
+        skill.src = direction === 'left' ? 'image/skill/skill6.gif' : 'image/skill/skill6.gif'; // Gợi ý nếu bạn có cả 2 ảnh
+    }
+
+    skill.style.left = `${startX - 50}px`;
+    skill.style.top = `${startY - 50}px`;
+    skill.style.width = '200px';
+    skill.style.height = '100px';
+    skill.style.transform = `rotate(${angle}deg)`;
+
+    setTimeout(() => {
+        skill.style.transform = `rotate(${angle}deg) translateX(${distance}px)`;
+    }, 10);
+}
+
+    document.body.appendChild(skill);
+    setTimeout(() => skill.remove(), 1300);
+}
+
+// Gán sự kiện click vào mỗi user để mở icon
+document.querySelectorAll('.image-container').forEach(container => {
+    const effectIcon = container.querySelector('.effect-icon');
+    if (effectIcon) {
+        effectIcon.addEventListener('click', e => {
+            e.stopPropagation();
+            const effectImg = container.querySelector('.effect-image');
+            if (!effectImg) return;
+            const isVisible = effectImg.style.display === 'block';
+            effectImg.style.display = isVisible ? 'none' : 'block';
+            effectImg.classList.toggle('show-rise', !isVisible);
+        });
+    }
+    document.querySelectorAll('.image-container').forEach(container => {
+    const effectIcon = container.querySelector('.effect-icon');
+    const userId = container.getAttribute('data-user-id');
+
+    if (effectIcon) {
+        let effectState = 0; // 0: effect, 1: effect1, 2: effect2, 3: effect3
+
+        effectIcon.addEventListener('click', e => {
+            e.stopPropagation();
+
+            const effects = [
+                container.querySelector('.effect-image'),
+                container.querySelector('.effect-image1'),
+                container.querySelector('.effect-image2'),
+                container.querySelector('.effect-image3')
+            ];
+
+            // Tắt tất cả hiệu ứng
+            effects.forEach(effect => {
+                if (effect) effect.style.display = 'none';
+            });
+
+            // Xác định hiệu ứng hiện tại
+            const currentEffect = effects[effectState];
+
+            if (currentEffect) {
+                // Kiểm tra trạng thái hiển thị
+                const isVisible = currentEffect.style.display === 'block';
+
+                // Cập nhật hiển thị
+                currentEffect.style.display = isVisible ? 'none' : 'block';
+
+                // Gửi AJAX để cập nhật trạng thái
+                const formData = new FormData();
+                formData.append('user_id', userId);
+                formData.append('effect_index', effectState);
+                formData.append('status', isVisible ? 0 : 1);
+
+                fetch('update_status_effect.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                socket.send(JSON.stringify({
+    type: 'effect',
+    userId: userId,
+    effectIndex: effectState,
+    status: !isVisible // true = hiển thị, false = ẩn
+}));
+
+            }
+
+            // Chuyển sang trạng thái tiếp theo
+            effectState = (effectState + 1) % 4;
+        });
+    }
+});
+
+
+    container.addEventListener('click', function (e) {
+        if (['effect-icon', 'namdam-icon'].some(cls => e.target.classList.contains(cls))) return;
+        document.querySelectorAll('.icon-container').forEach(ic => ic.style.display = 'none');
+        const iconContainer = this.querySelector('.icon-container');
+        if (iconContainer) iconContainer.style.display = 'block';
+        e.stopPropagation();
+    });
+
+    const setIcon = container.querySelector('.set-icon');
+    const kiemIcon = container.querySelector('.kiem-icon');
+    const namdamIcon = container.querySelector('.namdam-icon');
+
+    function sendAttack(skillType) {
+        const userId = container.getAttribute('data-user-id');
+        socket.send(JSON.stringify({ type: 'attack', userId, skillType }));
+        launchSkillEffect({ userId, skillType });
+    }
+
+    if (setIcon) setIcon.addEventListener('click', e => { e.stopPropagation(); sendAttack('set'); });
+    if (kiemIcon) kiemIcon.addEventListener('click', e => { e.stopPropagation(); sendAttack('kiem'); });
+    if (namdamIcon) namdamIcon.addEventListener('click', e => { e.stopPropagation(); sendAttack('namdam'); });
+});
+
+document.addEventListener('click', () => {
+    document.querySelectorAll('.icon-container').forEach(container => {
+        container.style.display = 'none';
+    });
+});
+</script>
+
+
+
 <script>
 // Đổi ảnh động liên tục
 let isStatic = false;

@@ -128,7 +128,7 @@ $result = $conn->query($sql);
 </head>
 <body>
 <video autoplay muted loop id="background-video">
-    <source src="nenalfea.mp4" type="video/mp4">
+    <source src="image/nen/nenalfea.mp4" type="video/mp4">
     Your browser does not support HTML5 video.
   </video>
 
@@ -144,7 +144,7 @@ while ($row = $result->fetch_assoc()) {
         $usernameDisplay = '<div class="username" style="z-index:10;margin: 0 auto; text-align:center;color: gold; font-weight: bold; position: relative; font-family: arial; font-size: 12px;">
                                 <i class="fa-solid fa-arrow-up"></i> ' . htmlspecialchars($row['username']) . '
                                 <div class="icon-container" style="display: none;">
-                                    <img src="effect_icon.png" class="circle-icon effect-icon" data-effect="' . htmlspecialchars($row['effect']) . '">
+                                    <img src="image/icon/effect_icon.png" style="left:-10%;" class="circle-icon effect-icon" data-effect="' . htmlspecialchars($row['effect']) . '">
                                 </div>
                             </div>';
     } else {
@@ -152,9 +152,9 @@ while ($row = $result->fetch_assoc()) {
         $usernameDisplay = '<div class="username" style="z-index:10;text-align:center;color: white; position: relative;font-family: arial; font-size: 12px">
                                 ' . htmlspecialchars($row['username']) . '
                                 <div class="icon-container" style="display: none;">
-                                    <img src="namdam.webp" class="circle-icon namdam-icon">
-                                    <img src="set.png" class="circle-icon set-icon" style="left: -10%;">
-                                    <img src="sword.webp" class="circle-icon kiem-icon" style="left: -65%;">
+                                    <img src="image/icon/namdam.webp" class="circle-icon namdam-icon" style="width:20px;right: -25%";>
+                                    <img src="image/icon/set.png" class="circle-icon set-icon" style="left: -15%;width:20px;">
+                                    <img src="image/icon/sword.webp" class="circle-icon kiem-icon" style="right: 20%;width:20px;">
                                 </div>
                             </div>';
     }
@@ -180,36 +180,58 @@ while ($row = $result->fetch_assoc()) {
     echo '</div>';
 }
 ?>
-
 <!-- Thêm phần JS vào cuối trang -->
 <script>
-const socket = new WebSocket('ws://localhost:8080');
+    
+    const currentUserId = "<?php echo $current_user_id; ?>"; // Lấy user_id từ session
+const socket = new WebSocket('ws://localhost:8888');
 
 socket.onopen = () => {
     console.log('WebSocket connected');
+    // Gửi thông tin người dùng sau khi kết nối
+    socket.send(JSON.stringify({
+    type: 'attack',
+    userId,        // người bị tấn công
+    skillType,
+    senderId: currentUserId
+}));
+
 };
+
 
 socket.onmessage = (event) => {
     const data = JSON.parse(event.data);
+
     if (data.type === 'effect') {
-        updateEffect(data.userId, data.effectVisible);
-    } else if (data.type === 'attack') {
-        launchSkillEffect(data);
+    updateEffect(data.userId, data.effectIndex, data.status);
+}
+ else if (data.type === 'attack' && data.senderId !== currentUserId) {
+    launchSkillEffect(data);
+}
+ else if (data.type === 'user_connected') {
+        // Hiển thị thông báo người dùng mới kết nối
+        alert(data.message); // Hoặc cập nhật giao diện theo cách của bạn
     }
 };
+
+
 
 socket.onclose = () => {
     console.log('WebSocket disconnected');
 };
 
-function updateEffect(userId, effectVisible) {
-    const userContainer = document.querySelector(`.image-container[data-user-id='${userId}']`);
-    if (!userContainer) return;
-    const effectImage = userContainer.querySelector('.effect-image');
-    if (!effectImage) return;
 
-    effectImage.style.display = effectVisible ? 'block' : 'none';
-    effectImage.classList.toggle('show-effect', effectVisible);
+function updateEffect(userId, effectIndex, status) {
+    const container = document.querySelector(`.image-container[data-user-id="${userId}"]`);
+    if (!container) return;
+
+    const effectClasses = ['.effect-image', '.effect-image1', '.effect-image2', '.effect-image3'];
+    const effect = container.querySelector(effectClasses[effectIndex]);
+
+    if (effect) {
+        effect.style.display = status ? 'block' : 'none';
+        effect.classList.toggle('show-effect', status);
+    }
 }
 
 function launchSkillEffect(data) {
@@ -239,30 +261,30 @@ function launchSkillEffect(data) {
     skill.style.transformOrigin = 'left center';
 
     if (data.skillType === 'set') {
-        skill.src = 'skill4_right.gif'; // hoặc left/right nếu có
-        skill.style.left = `${startX}px`;
-        skill.style.top = `${startY}px`;
-        skill.style.width = `${distance}px`;
-        skill.style.height = '40px';
-        skill.style.transform = `rotate(${angle}deg)`;
-    } else {
-        if (data.skillType === 'kiem') {
-            skill.src = direction === 'left' ? 'skill8_right.gif' : 'skill8_right.gif';
-        } else if (data.skillType === 'namdam') {
-            skill.src = direction === 'left' ? 'skill6.gif' : 'skill6.gif';
-        }
-
-        skill.style.left = `${startX - 50}px`;
-        skill.style.top = `${startY - 50}px`;
-        skill.style.width = '200px';
-        skill.style.height = '100px';
-        skill.style.transform = `rotate(${angle}deg)`;
-        
-        // Di chuyển sau 10ms
-        setTimeout(() => {
-            skill.style.transform = `rotate(${angle}deg) translateX(${distance}px)`;
-        }, 10);
+    skill.src = 'image/skill/skill4_right.gif';
+    skill.style.left = `${startX}px`;
+    skill.style.top = `${startY}px`;
+    skill.style.width = `${distance}px`;
+    skill.style.height = '40px';
+    skill.style.transform = `rotate(${angle}deg)`;
+} else {
+    // Chọn ảnh theo hướng
+    if (data.skillType === 'kiem') {
+        skill.src = direction === 'left' ? 'image/skill/skill8_right.gif' : 'image/skill/skill8_right.gif';
+    } else if (data.skillType === 'namdam') {
+        skill.src = direction === 'left' ? 'image/skill/skill6.gif' : 'image/skill/skill6.gif'; // Gợi ý nếu bạn có cả 2 ảnh
     }
+
+    skill.style.left = `${startX - 50}px`;
+    skill.style.top = `${startY - 50}px`;
+    skill.style.width = '200px';
+    skill.style.height = '100px';
+    skill.style.transform = `rotate(${angle}deg)`;
+
+    setTimeout(() => {
+        skill.style.transform = `rotate(${angle}deg) translateX(${distance}px)`;
+    }, 10);
+}
 
     document.body.appendChild(skill);
     setTimeout(() => skill.remove(), 1300);
@@ -323,6 +345,13 @@ document.querySelectorAll('.image-container').forEach(container => {
                     method: 'POST',
                     body: formData
                 });
+                socket.send(JSON.stringify({
+    type: 'effect',
+    userId: userId,
+    effectIndex: effectState,
+    status: !isVisible // true = hiển thị, false = ẩn
+}));
+
             }
 
             // Chuyển sang trạng thái tiếp theo
@@ -361,8 +390,6 @@ document.addEventListener('click', () => {
     });
 });
 </script>
-
-
 
 
 

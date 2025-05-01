@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $updateStatus->close();
 
             // Chuyển hướng về index
-            header("Location: home.php");
+            header("Location: index.php");
             exit();
         } else {
             $message = "⚠️ Mật khẩu không đúng!";
@@ -62,7 +62,7 @@ $conn->close();
   <style>
     body {
       font-family: sans-serif;
-      background: url('nenlog.jpeg') no-repeat center center/cover;
+      background: url('image/nen/nenlog.jpeg') no-repeat center center/cover;
       display: flex;
       background-size: 108%;
       justify-content: center;

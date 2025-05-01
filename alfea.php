@@ -64,7 +64,7 @@ while ($row = $result->fetch_assoc()) {
         $usernameDisplay = '<div class="username" style="z-index:10;margin: 0 auto; text-align:center;color: gold; font-weight: bold; position: relative; font-family: arial; font-size: 12px;">
                                 <i class="fa-solid fa-arrow-up"></i> ' . htmlspecialchars($row['username']) . '
                                 <div class="icon-container" style="display: none;">
-                                    <img src="effect_icon.png" class="circle-icon effect-icon" data-effect="' . htmlspecialchars($row['effect']) . '">
+                                    <img src="image/icon/effect_icon.png" style="left:-10%;" class="circle-icon effect-icon" data-effect="' . htmlspecialchars($row['effect']) . '">
                                 </div>
                             </div>';
     } else {
@@ -72,9 +72,9 @@ while ($row = $result->fetch_assoc()) {
         $usernameDisplay = '<div class="username" style="z-index:10;text-align:center;color: white; position: relative;font-family: arial; font-size: 12px">
                                 ' . htmlspecialchars($row['username']) . '
                                 <div class="icon-container" style="display: none;">
-                                    <img src="namdam.webp" class="circle-icon namdam-icon">
-                                    <img src="set.png" class="circle-icon set-icon" style="left: -10%;">
-                                    <img src="sword.webp" class="circle-icon kiem-icon" style="left: -65%;">
+                                    <img src="image/icon/namdam.webp" class="circle-icon namdam-icon" style="width:20px;right: -25%";>
+                                    <img src="image/icon/set.png" class="circle-icon set-icon" style="left: -15%;width:20px;">
+                                    <img src="image/icon/sword.webp" class="circle-icon kiem-icon" style="right: 20%;width:20px;">
                                 </div>
                             </div>';
     }
@@ -182,7 +182,7 @@ function launchSkillEffect(data) {
     skill.style.transformOrigin = 'left center';
 
     if (data.skillType === 'set') {
-    skill.src = 'skill4_right.gif';
+    skill.src = 'image/skill/skill4_right.gif';
     skill.style.left = `${startX}px`;
     skill.style.top = `${startY}px`;
     skill.style.width = `${distance}px`;
@@ -191,9 +191,9 @@ function launchSkillEffect(data) {
 } else {
     // Chọn ảnh theo hướng
     if (data.skillType === 'kiem') {
-        skill.src = direction === 'left' ? 'skill8_right.gif' : 'skill8_right.gif';
+        skill.src = direction === 'left' ? 'image/skill/skill8_right.gif' : 'image/skill/skill8_right.gif';
     } else if (data.skillType === 'namdam') {
-        skill.src = direction === 'left' ? 'skill6.gif' : 'skill6.gif'; // Gợi ý nếu bạn có cả 2 ảnh
+        skill.src = direction === 'left' ? 'image/skill/skill6.gif' : 'image/skill/skill6.gif'; // Gợi ý nếu bạn có cả 2 ảnh
     }
 
     skill.style.left = `${startX - 50}px`;
@@ -478,7 +478,7 @@ function updatePositions(positions) {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url('alfea.webp');
+  background-image: url('image/nen/alfea.webp');
   background-size: 105%;
   background-position: center;
   position: relative;

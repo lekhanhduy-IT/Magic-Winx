@@ -26,7 +26,13 @@ SELECT
     outfits.image3, 
     outfits.image4, 
     outfits.effect, 
+    outfits.effect1,
+    outfits.effect2,
+    outfits.effect3,
     outfits.status_effect,
+    outfits.status_effect1,
+    outfits.status_effect2,
+    outfits.status_effect3,
     outfits.x, 
     outfits.y, 
     users.status
@@ -34,6 +40,7 @@ FROM users
 INNER JOIN outfits ON users.id = outfits.user_id
 WHERE users.status = 1
 ";
+
 
 
 $result = $conn->query($sql);
@@ -57,7 +64,7 @@ $result = $conn->query($sql);
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url('dothi.jpg');
+  background-image: url('image/nen/dothi.jpg');
   background-size: 105%;
   background-position: center;
   position: relative;
@@ -71,7 +78,7 @@ $result = $conn->query($sql);
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url('vaodothi.png');
+  background-image: url('image/nen/vaodothi.png');
   background-size: contain; /* hoặc cover tùy bạn */
   background-repeat: no-repeat;
   background-position: center;
@@ -89,29 +96,52 @@ $result = $conn->query($sql);
   }
 }
 
+.image-container {
+  position: fixed;
+  left: 50%;
+  bottom: 100px; /* cách cạnh dưới 100px */
+  transform: translateX(-50%);
+  width: 80px;
+  height: 80px;
+  overflow: visible;
+  transition: transform 3.4s ease;
+  animation: moveInCircle 4s linear infinite;
+  transform-origin: center;
+}
 
-    .image-container {
-        position: absolute;
-        width: 100px;
-        height: 100px;
-    }
-    .image-container img {
-        position: absolute;
-        width: 100px;
-        height: 100px;
-    }
-    .image1, .image3 {
+
+
+
+.image-container img {
+    position: absolute;
+    top: 120;
+  left: 100;
+  width: 100%;       /* hoặc 120% nếu cần lớn hơn */
+  height: 100%;
+  object-fit: contain; /* ✅ Không méo ảnh, giữ nguyên tỷ lệ */
+}
+
+
+
+.image1, .image3 {
   display: block;
 }
 
 .image1, .image2 {
+  width: 100%;
+  height: 100%;
   z-index: 3; /* Nhân vật */
-  
 }
 
 .image3, .image4 {
-  z-index: 1; /* Cánh */
+  width: 100%;
+  height: 100%;
+  transform: scale(1.2); /* Phóng to nhưng không làm ảnh bị cắt */
+  margin-top: -8%;
+  z-index: 1; 
+
 }
+
 
 
     .hospital-btn {
@@ -178,7 +208,7 @@ while ($row = $result->fetch_assoc()) {
         $usernameDisplay = '<div class="username" style="z-index:10;margin: 0 auto; text-align:center;color: gold; font-weight: bold; position: relative; font-family: arial; font-size: 12px;">
                                 <i class="fa-solid fa-arrow-up"></i> ' . htmlspecialchars($row['username']) . '
                                 <div class="icon-container" style="display: none;">
-                                    <img src="effect_icon.png" class="circle-icon effect-icon" data-effect="' . htmlspecialchars($row['effect']) . '">
+                                    <img src="image/icon/effect_icon.png" style="left:-10%;" class="circle-icon effect-icon" data-effect="' . htmlspecialchars($row['effect']) . '">
                                 </div>
                             </div>';
     } else {
@@ -186,7 +216,9 @@ while ($row = $result->fetch_assoc()) {
         $usernameDisplay = '<div class="username" style="z-index:10;text-align:center;color: white; position: relative;font-family: arial; font-size: 12px">
                                 ' . htmlspecialchars($row['username']) . '
                                 <div class="icon-container" style="display: none;">
-                                    <img src="namdam.webp" class="circle-icon namdam-icon">
+                                    <img src="image/icon/namdam.webp" class="circle-icon namdam-icon" style="width:20px;right: -25%";>
+                                    <img src="image/icon/set.png" class="circle-icon set-icon" style="left: -15%;width:20px;">
+                                    <img src="image/icon/sword.webp" class="circle-icon kiem-icon" style="right: 20%;width:20px;">
                                 </div>
                             </div>';
     }
@@ -199,12 +231,19 @@ while ($row = $result->fetch_assoc()) {
         echo '<img src="' . $row['image2'] . '" class="image2" style="display:none;">';
         echo '<img src="' . $row['image3'] . '" class="image3" style="display:block;">';
         echo '<img src="' . $row['image4'] . '" class="image4" style="display:none;">';
-        echo '<img src="' . $row['effect'] . '" class="effect-image" style="display:none;position:relative;z-index:2; object-fit: bottom;height:100%; width:100%;left: -0%; top:-20%;">';
+        $displayEffect = ($row['status_effect'] == 1) ? 'block' : 'none';
+        $displayEffect1 = ($row['status_effect1'] == 1) ? 'block' : 'none';
+        $displayEffect2 = ($row['status_effect2'] == 1) ? 'block' : 'none';
+        $displayEffect3 = ($row['status_effect3'] == 1) ? 'block' : 'none';
+        
+        echo '<img src="' . $row['effect'] . '" class="effect-image" style="display:' . $displayEffect . ';position:relative;z-index:2; object-fit: bottom;height:100%; width:120%;left: -10%; top:10%;">';
+        echo '<img src="' . $row['effect1'] . '" class="effect-image1" style="display:' . $displayEffect1 . ';position:relative;z-index:2; object-fit: bottom;height:100%; width:120%;left: -10%; top:10%;">';
+        echo '<img src="' . $row['effect2'] . '" class="effect-image2" style="display:' . $displayEffect2 . ';position:relative;z-index:2; object-fit: bottom;height:100%; width:120%;left: -10%; top:10%;">';
+        echo '<img src="' . $row['effect3'] . '" class="effect-image3" style="display:' . $displayEffect3 . ';position:relative;z-index:2; object-fit: bottom;height:100%; width:120%;left: -10%; top:-30%;">';
+                
     echo '</div>';
 }
 ?>
-
-
 <script>
 function isOverlap(el1, el2) {
     const rect1 = el1.getBoundingClientRect();
@@ -241,176 +280,209 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Thêm phần JS vào cuối trang -->
 <script>
-// Tất cả mã JavaScript ở trên, bao gồm phần kết nối WebSocket và các xử lý sự kiện
-const socket = new WebSocket('ws://localhost:8080');  // Kết nối đến WebSocket server
+    
+    const currentUserId = "<?php echo $current_user_id; ?>"; // Lấy user_id từ session
+const socket = new WebSocket('ws://localhost:8888');
 
-socket.onopen = function() {
-    console.log('WebSocket connection established');
+socket.onopen = () => {
+    console.log('WebSocket connected');
+    // Gửi thông tin người dùng sau khi kết nối
+    socket.send(JSON.stringify({
+    type: 'attack',
+    userId,        // người bị tấn công
+    skillType,
+    senderId: currentUserId
+}));
+
 };
 
-socket.onmessage = function(event) {
+
+socket.onmessage = (event) => {
     const data = JSON.parse(event.data);
-    console.log('Received:', data);
-    
-    // Cập nhật giao diện của các client khác
+
     if (data.type === 'effect') {
-        updateEffect(data.userId, data.effectVisible);
-    } else if (data.type === 'attack') {
-        launchSkillEffect(data);
+    updateEffect(data.userId, data.effectIndex, data.status);
+}
+ else if (data.type === 'attack' && data.senderId !== currentUserId) {
+    launchSkillEffect(data);
+}
+ else if (data.type === 'user_connected') {
+        // Hiển thị thông báo người dùng mới kết nối
+        alert(data.message); // Hoặc cập nhật giao diện theo cách của bạn
     }
 };
 
-socket.onclose = function() {
-    console.log('WebSocket connection closed');
+
+
+socket.onclose = () => {
+    console.log('WebSocket disconnected');
 };
 
-// Cập nhật hiệu ứng cho các client khác
-function updateEffect(userId, effectVisible) {
-    const userContainer = document.querySelector(`.image-container[data-user-id='${userId}']`);
-    const effectImage = userContainer.querySelector('.effect-image');
-    if (effectVisible) {
-        effectImage.style.display = 'block';
-        effectImage.classList.add('show-effect');
-    } else {
-        effectImage.style.display = 'none';
-        effectImage.classList.remove('show-effect');
+
+function updateEffect(userId, effectIndex, status) {
+    const container = document.querySelector(`.image-container[data-user-id="${userId}"]`);
+    if (!container) return;
+
+    const effectClasses = ['.effect-image', '.effect-image1', '.effect-image2', '.effect-image3'];
+    const effect = container.querySelector(effectClasses[effectIndex]);
+
+    if (effect) {
+        effect.style.display = status ? 'block' : 'none';
+        effect.classList.toggle('show-effect', status);
     }
 }
 
-// Tạo hiệu ứng skill bay khi tấn công
 function launchSkillEffect(data) {
+    const currentUser = document.querySelector('.image-container.current-user');
+    const targetUser = document.querySelector(`.image-container[data-user-id="${data.userId}"]`);
+    if (!currentUser || !targetUser) return;
+
+    const startRect = currentUser.getBoundingClientRect();
+    const endRect = targetUser.getBoundingClientRect();
+
+    const startX = startRect.left + startRect.width / 2;
+    const startY = startRect.top + startRect.height / 2;
+    const endX = endRect.left + endRect.width / 2;
+    const endY = endRect.top + endRect.height / 2;
+
+    const dx = endX - startX;
+    const dy = endY - startY;
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    const distance = Math.hypot(dx, dy);
+    const direction = targetUser.offsetLeft < currentUser.offsetLeft ? 'left' : 'right';
+
     const skill = document.createElement('img');
-    skill.src = 'skill6.gif';
     skill.style.position = 'fixed';
-    skill.style.left = (data.startX - 25) + 'px';
-    skill.style.top = (data.startY - 25) + 'px'; 
-    skill.style.width = '100px';
-    skill.style.height = '100px';
     skill.style.zIndex = '10000';
     skill.style.pointerEvents = 'none';
     skill.style.transition = 'transform 1.2s linear';
-    document.body.appendChild(skill);
+    skill.style.transformOrigin = 'left center';
 
-    setTimeout(() => {
-        skill.style.transform = `translate(${data.dx}px, ${data.dy}px) rotate(${data.angle}deg)`;
-    }, 10);
-
-    setTimeout(() => {
-        skill.remove();
-    }, 1300); // Delay > 1.2s
-}
-
-// Xử lý sự kiện click cho các user
-document.querySelectorAll('.image-container').forEach(container => {
-    container.addEventListener('click', function(e) {
-        if (e.target.classList.contains('effect-icon') || e.target.classList.contains('namdam-icon')) return;
-
-        document.querySelectorAll('.icon-container').forEach(ic => ic.style.display = 'none');
-
-        const iconContainer = this.querySelector('.icon-container');
-        if (iconContainer) {
-            iconContainer.style.display = 'block';
-        }
-        e.stopPropagation();
-    });
-
-    const effectIcon = container.querySelector('.effect-icon');
-    const effectImage = container.querySelector('.effect-image');
-    const namdamIcon = container.querySelector('.namdam-icon');
-
-    // Xử lý effect-icon (chỉ current user)
-    if (effectIcon && effectImage) {
-        let effectVisible = false;
-        effectIcon.addEventListener('click', function(e) {
-            effectVisible = !effectVisible;
-            if (effectVisible) {
-                effectImage.style.display = 'block';  // Hiện hiệu ứng
-                effectImage.classList.add('show-effect'); // Thêm animation
-
-                // Gửi thông báo đến server và các client khác
-                const userId = container.getAttribute('data-user-id');
-                socket.send(JSON.stringify({
-                    type: 'effect',
-                    userId: userId,
-                    effectVisible: true
-                }));
-            } else {
-                effectImage.style.display = 'none'; // Ẩn hiệu ứng
-                effectImage.classList.remove('show-effect'); // Xóa animation
-
-                // Gửi thông báo đến server và các client khác
-                const userId = container.getAttribute('data-user-id');
-                socket.send(JSON.stringify({
-                    type: 'effect',
-                    userId: userId,
-                    effectVisible: false
-                }));
-            }
-            e.stopPropagation();
-        });
+    if (data.skillType === 'set') {
+    skill.src = 'image/skill/skill4_right.gif';
+    skill.style.left = `${startX}px`;
+    skill.style.top = `${startY}px`;
+    skill.style.width = `${distance}px`;
+    skill.style.height = '40px';
+    skill.style.transform = `rotate(${angle}deg)`;
+} else {
+    // Chọn ảnh theo hướng
+    if (data.skillType === 'kiem') {
+        skill.src = direction === 'left' ? 'image/skill/skill8_right.gif' : 'image/skill/skill8_right.gif';
+    } else if (data.skillType === 'namdam') {
+        skill.src = direction === 'left' ? 'image/skill/skill6.gif' : 'image/skill/skill6.gif'; // Gợi ý nếu bạn có cả 2 ảnh
     }
 
-    // Xử lý namdam-icon (click để tấn công)
-    if (namdamIcon) {
-        namdamIcon.addEventListener('click', function(e) {
+    skill.style.left = `${startX - 50}px`;
+    skill.style.top = `${startY - 50}px`;
+    skill.style.width = '200px';
+    skill.style.height = '100px';
+    skill.style.transform = `rotate(${angle}deg)`;
+
+    setTimeout(() => {
+        skill.style.transform = `rotate(${angle}deg) translateX(${distance}px)`;
+    }, 10);
+}
+
+    document.body.appendChild(skill);
+    setTimeout(() => skill.remove(), 1300);
+}
+
+// Gán sự kiện click vào mỗi user để mở icon
+document.querySelectorAll('.image-container').forEach(container => {
+    const effectIcon = container.querySelector('.effect-icon');
+    if (effectIcon) {
+        effectIcon.addEventListener('click', e => {
+            e.stopPropagation();
+            const effectImg = container.querySelector('.effect-image');
+            if (!effectImg) return;
+            const isVisible = effectImg.style.display === 'block';
+            effectImg.style.display = isVisible ? 'none' : 'block';
+            effectImg.classList.toggle('show-rise', !isVisible);
+        });
+    }
+    document.querySelectorAll('.image-container').forEach(container => {
+    const effectIcon = container.querySelector('.effect-icon');
+    const userId = container.getAttribute('data-user-id');
+
+    if (effectIcon) {
+        let effectState = 0; // 0: effect, 1: effect1, 2: effect2, 3: effect3
+
+        effectIcon.addEventListener('click', e => {
             e.stopPropagation();
 
-            const currentUserContainer = document.querySelector('.image-container.current-user');
-            if (!currentUserContainer) return;
+            const effects = [
+                container.querySelector('.effect-image'),
+                container.querySelector('.effect-image1'),
+                container.querySelector('.effect-image2'),
+                container.querySelector('.effect-image3')
+            ];
 
-            const startRect = currentUserContainer.getBoundingClientRect();
-            const startX = startRect.left + startRect.width / 2;
-            const startY = startRect.top + startRect.height / 2;
+            // Tắt tất cả hiệu ứng
+            effects.forEach(effect => {
+                if (effect) effect.style.display = 'none';
+            });
 
-            const targetRect = container.getBoundingClientRect();
-            const endX = targetRect.left + targetRect.width / 2;
-            const endY = targetRect.top + targetRect.height / 2;
+            // Xác định hiệu ứng hiện tại
+            const currentEffect = effects[effectState];
 
-            // Tạo skill bay
-            const skill = document.createElement('img');
-            skill.src = 'skill6.gif';
-            skill.style.position = 'fixed';
-            skill.style.left = (startX - 25) + 'px'; // Căn chỉnh để tâm ảnh
-            skill.style.top = (startY - 25) + 'px'; 
-            skill.style.width = '100px';
-            skill.style.height = '100px';
-            skill.style.zIndex = '10000';
-            skill.style.pointerEvents = 'none';
-            skill.style.transition = 'transform 1.2s linear';
-            document.body.appendChild(skill);
+            if (currentEffect) {
+                // Kiểm tra trạng thái hiển thị
+                const isVisible = currentEffect.style.display === 'block';
 
-            // Tính toán vector di chuyển
-            const dx = endX - startX;
-            const dy = endY - startY;
-            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                // Cập nhật hiển thị
+                currentEffect.style.display = isVisible ? 'none' : 'block';
 
-            // Gửi sự kiện tấn công đến server và các client khác
-            const userId = container.getAttribute('data-user-id');
-            socket.send(JSON.stringify({
-                type: 'attack',
-                userId: userId,
-                startX: startX,
-                startY: startY,
-                dx: dx,
-                dy: dy,
-                angle: angle
-            }));
+                // Gửi AJAX để cập nhật trạng thái
+                const formData = new FormData();
+                formData.append('user_id', userId);
+                formData.append('effect_index', effectState);
+                formData.append('status', isVisible ? 0 : 1);
 
-            // Bắt đầu bay skill
-            setTimeout(() => {
-                skill.style.transform = `translate(${dx}px, ${dy}px) rotate(${angle}deg)`;
-            }, 10);
+                fetch('update_status_effect.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                socket.send(JSON.stringify({
+    type: 'effect',
+    userId: userId,
+    effectIndex: effectState,
+    status: !isVisible // true = hiển thị, false = ẩn
+}));
 
-            // Sau khi bay xong thì xóa skill
-            setTimeout(() => {
-                skill.remove();
-            }, 1300); // Delay > 1.2s
+            }
+
+            // Chuyển sang trạng thái tiếp theo
+            effectState = (effectState + 1) % 4;
         });
     }
 });
 
-// Nếu click ra ngoài thì ẩn tất cả icon-container
-document.addEventListener('click', function() {
+
+    container.addEventListener('click', function (e) {
+        if (['effect-icon', 'namdam-icon'].some(cls => e.target.classList.contains(cls))) return;
+        document.querySelectorAll('.icon-container').forEach(ic => ic.style.display = 'none');
+        const iconContainer = this.querySelector('.icon-container');
+        if (iconContainer) iconContainer.style.display = 'block';
+        e.stopPropagation();
+    });
+
+    const setIcon = container.querySelector('.set-icon');
+    const kiemIcon = container.querySelector('.kiem-icon');
+    const namdamIcon = container.querySelector('.namdam-icon');
+
+    function sendAttack(skillType) {
+        const userId = container.getAttribute('data-user-id');
+        socket.send(JSON.stringify({ type: 'attack', userId, skillType }));
+        launchSkillEffect({ userId, skillType });
+    }
+
+    if (setIcon) setIcon.addEventListener('click', e => { e.stopPropagation(); sendAttack('set'); });
+    if (kiemIcon) kiemIcon.addEventListener('click', e => { e.stopPropagation(); sendAttack('kiem'); });
+    if (namdamIcon) namdamIcon.addEventListener('click', e => { e.stopPropagation(); sendAttack('namdam'); });
+});
+
+document.addEventListener('click', () => {
     document.querySelectorAll('.icon-container').forEach(container => {
         container.style.display = 'none';
     });

@@ -46,32 +46,56 @@ $result = $conn->query($sql);
             display: flex;
             align-items: center;
             justify-content: center;
-            background: url('nensugar.jpg') no-repeat center center;
+            background: url('image/nen/nensugar.jpg') no-repeat center center;
             background-size: cover;
             overflow: hidden;
         }
         .image-container {
-        position: absolute;
-        width: 100px;
-        height: 100px;
+      left: 100px;
+      top: 120px;
+      position: absolute;
+      width: 80px; /* chiều rộng ảnh */
+      height: 80px; /* chiều cao ảnh */
+      overflow: visible;
+      transition: transform 3.4s ease;
+      animation: moveInCircle 4s linear infinite;
+      transform-origin: center; /* Xác định tâm của container */
+
     }
-    .image-container img {
-        position: absolute;
-        width: 100px;
-        height: 100px;
-    }
-    .image1, .image3 {
+
+
+
+
+.image-container img {
+    position: absolute;
+    top: 120;
+  left: 100;
+  width: 100%;       /* hoặc 120% nếu cần lớn hơn */
+  height: 100%;
+  object-fit: contain; /* ✅ Không méo ảnh, giữ nguyên tỷ lệ */
+}
+
+
+
+.image1, .image3 {
   display: block;
 }
 
 .image1, .image2 {
+  width: 100%;
+  height: 100%;
   z-index: 3; /* Nhân vật */
-  
 }
 
 .image3, .image4 {
-  z-index: 1; /* Cánh */
+  width: 100%;
+  height: 100%;
+  transform: scale(1.2); /* Phóng to nhưng không làm ảnh bị cắt */
+  margin-top: -8%;
+  z-index: 1; 
+
 }
+
 
 
     </style>

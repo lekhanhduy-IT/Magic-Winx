@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user_id = $stmt->insert_id;
 
         $sql2 = "INSERT INTO outfits (user_id, image2, image1, image3, image4)
-                 VALUES (?, ?, ?, 'canhtrong.png', 'canhtrong.png')";
+                 VALUES (?, ?, ?, 'image/canh/canhtrong.png', 'image/canh/canhtrong.png')";
         $stmt2 = $conn->prepare($sql2);
         $stmt2->bind_param("iss", $user_id, $user_fly, $user_static);
         $stmt2->execute();
@@ -104,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       gap: 20px;
       justify-content: center;
       align-items: center;
-      max-width: 500px;
+      max-width: 600px;
       overflow-y: auto;
       max-height: 90vh;
       margin-top:150px;
@@ -113,8 +113,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     .user-container {
       position: relative;
-      width: 220px;
-      height: 220px;
+      width: 150px;
+      height: 150px;
       border: 2px solid transparent;
       border-radius: 10px;
       overflow: hidden;
@@ -160,8 +160,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="user-container" 
              data-user_static="<?= htmlspecialchars($row['user_static']) ?>" 
              data-user_fly="<?= htmlspecialchars($row['user_fly']) ?>">
-          <img src="<?= htmlspecialchars($row['user_static']) ?>" class="static" style="opacity:1;">
-          <img src="<?= htmlspecialchars($row['user_fly']) ?>" class="fly" style="opacity:0;">
+          <img src="image/user/<?= htmlspecialchars($row['user_static']) ?>" class="static" style="opacity:1;">
+          <img src="image/user/<?= htmlspecialchars($row['user_fly']) ?>" class="fly" style="opacity:0;">
         </div>
       <?php endwhile; ?>
     </div>

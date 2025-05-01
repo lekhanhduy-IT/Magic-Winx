@@ -293,7 +293,7 @@ $conn->close();
 </head>
 <body>
 <video autoplay muted loop id="background-video">
-    <source src="nenweb.mp4" type="video/mp4">
+    <source src="image/nen/nenweb.mp4" type="video/mp4">
     Your browser does not support HTML5 video.
   </video>
 
@@ -323,19 +323,19 @@ $conn->close();
       <div class="wing-cabinet">
         <h2 class="cabinet-title">Wing Style</h2>
         <div class="cabinet-grid">
-          <div class="cabinet-box" data-wing-static="win1.png" data-wing-fly="win11.png"><img src="win1.png" alt="Cánh 1"></div>
-          <div class="cabinet-box" data-wing-static="win3_bloomix.png" data-wing-fly="win33.png"><img src="win3_bloomix.png" alt="Cánh 2"></div>
-          <div class="cabinet-box" data-wing-static="win4.png" data-wing-fly="win44.png"><img src="win4.png" alt="Cánh 3"></div>
-          <div class="cabinet-box" data-wing-static="win5.png" data-wing-fly="win55.png"><img src="win5.png" alt="Cánh 4"></div>
-          <div class="cabinet-box" data-wing-static="win6.png" data-wing-fly="win66.png"><img src="win6.png" alt="Cánh 5"></div>
-          <div class="cabinet-box" data-wing-static="win8.png" data-wing-fly="win88.png"><img src="win8.png" alt="Cánh 6"></div>
-          <div class="cabinet-box" data-wing-static="win7.png" data-wing-fly="win77.png"><img src="win7.png" alt="Cánh 7"></div>
-          <div class="cabinet-box" data-wing-static="win9.png" data-wing-fly="win99.png"><img src="win9.png" alt="Cánh 8"></div>
-          <div class="cabinet-box" data-wing-static="win10.png" data-wing-fly="win1010.png"><img src="win10.png" alt="Cánh 9"></div>
-          <div class="cabinet-box" data-wing-static="win12.png" data-wing-fly="win1212.png"><img src="win12.png" alt="Cánh 8"></div>
-          <div class="cabinet-box" data-wing-static="win13.png" data-wing-fly="win1313.png"><img src="win13.png" alt="Cánh 8"></div>
-          <div class="cabinet-box" data-wing-static="win14.png" data-wing-fly="win1414.png"><img src="win14.png" alt="Cánh 8"></div>
-          <div class="cabinet-box" data-wing-static="win15.png" data-wing-fly="win1515.png"><img src="win15.png" alt="Cánh 8"></div>
+          <div class="cabinet-box" data-wing-static="image/canh/win1.png" data-wing-fly="image/canh/win11.png"><img src="image/canh/win1.png" alt="Cánh 1"></div>
+          <div class="cabinet-box" data-wing-static="image/canh/win3_bloomix.png" data-wing-fly="image/canh/win33.png"><img src="image/canh/win3_bloomix.png" alt="Cánh 2"></div>
+          <div class="cabinet-box" data-wing-static="image/canh/win4.png" data-wing-fly="image/canh/win44.png"><img src="image/canh/win4.png" alt="Cánh 3"></div>
+          <div class="cabinet-box" data-wing-static="image/canh/win5.png" data-wing-fly="image/canh/win55.png"><img src="image/canh/win5.png" alt="Cánh 4"></div>
+          <div class="cabinet-box" data-wing-static="image/canh/win6.png" data-wing-fly="image/canh/win66.png"><img src="image/canh/win6.png" alt="Cánh 5"></div>
+          <div class="cabinet-box" data-wing-static="image/canh/win8.png" data-wing-fly="image/canh/win88.png"><img src="image/canh/win8.png" alt="Cánh 6"></div>
+          <div class="cabinet-box" data-wing-static="image/canh/win7.png" data-wing-fly="image/canh/win77.png"><img src="image/canh/win7.png" alt="Cánh 7"></div>
+          <div class="cabinet-box" data-wing-static="image/canh/win9.png" data-wing-fly="image/canh/win99.png"><img src="image/canh/win9.png" alt="Cánh 8"></div>
+          <div class="cabinet-box" data-wing-static="image/canh/win10.png" data-wing-fly="image/canh/win1010.png"><img src="image/canh/win10.png" alt="Cánh 9"></div>
+          <div class="cabinet-box" data-wing-static="image/canh/win12.png" data-wing-fly="image/canh/win1212.png"><img src="image/canh/win12.png" alt="Cánh 8"></div>
+          <div class="cabinet-box" data-wing-static="image/canh/win13.png" data-wing-fly="image/canh/win1313.png"><img src="image/canh/win13.png" alt="Cánh 8"></div>
+          <div class="cabinet-box" data-wing-static="image/canh/win14.png" data-wing-fly="image/canh/win1414.png"><img src="image/canh/win14.png" alt="Cánh 8"></div>
+          <div class="cabinet-box" data-wing-static="image/canh/win15.png" data-wing-fly="image/canh/win1515.png"><img src="image/canh/win15.png" alt="Cánh 8"></div>
       
 <!-- <div class="cabinet-box" data-wing-static="canhtrong.png" data-wing-fly="canhtrong.png"><img src="canhtrong.png" alt="Cánh 8"></div>-->
         </div>

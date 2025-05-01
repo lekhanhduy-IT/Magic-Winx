@@ -1,3 +1,37 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$host = 'localhost';
+$user = 'root';
+$password = '';
+$db = 'win';
+$port = 3406;
+
+$conn = new mysqli($host, $user, $password, $db, $port);
+if ($conn->connect_error) {
+    die("Kết nối thất bại: " . $conn->connect_error);
+}
+
+$user_id = $_SESSION['user_id'];
+
+$sql = "SELECT users.username 
+        FROM outfits 
+        JOIN users ON outfits.user_id = users.id 
+        WHERE outfits.user_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
+
+$conn->close();
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,7 +52,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url('floranen2.webp');
+  background-image: url('image/nen/floranen2.webp');
   background-size: 100%;
   background-position: center;
   position: relative;
@@ -50,7 +84,7 @@ iframe {
   position: fixed;
   top: 0;
   width: 100%;
-  z-index: 999;
+  z-index: 9999;
   font-weight: bold;
 }
 
@@ -66,7 +100,7 @@ header a {
 
 /* Biểu tượng riêng cho từng a */
 .icon-home {
-  background-image: url('home.png');
+  background-image: url('image/icon/home.png');
 }
 
 .icon-about {
@@ -74,11 +108,11 @@ header a {
 }
 
 .icon-contact {
-  background-image: url('contract.png');
+  background-image: url('image/icon/contract.png');
 }
 
 .icon-logout {
-  background-image: url('logout.png.png');
+  background-image: url('image/icon/logout.png.png');
 }
 /* Hiệu ứng hover */
 header a:hover {
@@ -105,7 +139,7 @@ header a:hover {
       color: #00ffff;
     }
     .pinkbtn {
-    background-image: url('buttongo.png');
+    background-image: url('image/icon/buttongo.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat; /* thêm dòng này */
@@ -115,7 +149,7 @@ header a:hover {
     border-radius: 50px;
     border: none;
     color: brown;
-    width: 100px;
+    width: 120px;
     position: fixed;
     top: 20px;
     left: 20px;
@@ -138,7 +172,7 @@ header a:hover {
 .dropdown-selected {
   width: 40px;
   height: 40px;
-  background-image: url('about.webp');
+  background-image: url('image/icon/about.webp');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -183,12 +217,18 @@ header a:hover {
 .dropdown-item:hover {
   background: #f0f0f0;
 }
+iframe {
+  border: none;
+  z-index: 1;
+  position: relative;
+}
 
 </style>
 <body>
 <header>
-  <button class="pinkbtn">Musa</button>
-
+<button class="pinkbtn">
+  <?php echo htmlspecialchars($row['username']); ?>
+</button>
   <a href="home.php" class="icon-home" title="Trang chủ"></a>
 
   <!-- Dropdown custom -->
@@ -196,23 +236,23 @@ header a:hover {
     <div class="dropdown-selected"></div>
     <div class="dropdown-list">
       <div class="dropdown-item" data-url="alfea.php">
-        <img src="alfea.webp" alt="Trường học">
+        <img src="image/nen/alfea.webp" alt="Trường học">
         <span>Trường học</span>
       </div>
       <div class="dropdown-item" data-url="night_town.php">
-        <img src="town.jpg" alt="Thị trấn đường">
+        <img src="image/nen/town.jpg" alt="Thị trấn đường">
         <span>Thị trấn đường</span>
       </div>
       <div class="dropdown-item" data-url="love_stree.php">
-        <img src="caytree.jpg" alt="Cây sự ssống">
+        <img src="image/nen/caytree.jpg" alt="Cây sự ssống">
         <span>Cây sự sống</span>
       </div>
       <div class="dropdown-item" data-url="ngoai_o.php">
-        <img src="duongdat.jpg" alt="Ngoại ô">
+        <img src="image/nen/duongdat.jpg" alt="Ngoại ô">
         <span>Ngoại ô</span>
       </div>
       <div class="dropdown-item" data-url="dothi.php">
-        <img src="dothi.jpg" alt="Đô thị">
+        <img src="image/nen/dothi.jpg" alt="Đô thị">
         <span>Đô thị</span>
       </div>
     </div>
